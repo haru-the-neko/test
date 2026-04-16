@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#e85c00">
+<title>for Czarina — channel orange</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400&family=Bebas+Neue&family=Playfair+Display:ital,wght@1,300&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:#e05800;
+    min-height:100vh;
+    font-family:'DM Sans',sans-serif;
+    color:#fff;
+    overflow-x:hidden;
+    cursor:none;
+    animation:pgIn .6s ease;
+  }
+  @keyframes pgIn{from{opacity:0;}to{opacity:1;}}
+
+  /* ── PRELOADER ── */
+  .pre{position:fixed;inset:0;z-index:9999;background:#e05800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;transition:opacity .8s ease;}
+  .pre.done{opacity:0;pointer-events:none;}
+  .pre-t{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:.2em;color:rgba(255,255,255,.2);animation:pulse 1.4s ease-in-out infinite;}
+  .pre-sub{font-size:.58rem;font-weight:200;letter-spacing:.5em;color:rgba(255,255,255,.12);text-transform:uppercase;}
+  @keyframes pulse{0%,100%{opacity:.15;}50%{opacity:.7;}}
+
+  /* ── CURSOR ── */
+  .cur{position:fixed;width:6px;height:6px;border-radius:50%;background:#fff;opacity:.4;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .2s,height .2s;}
+  .cur.h{width:18px;height:18px;opacity:.12;}
+
+  /* ── BG — solid orange with subtle texture ── */
+  .bg{
+    position:fixed;inset:0;z-index:0;
+    background:#e05800;
+  }
+  /* noise texture */
+  .bg::after{
+    content:'';position:absolute;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+    background-size:180px 180px;
+    pointer-events:none;opacity:.6;
+  }
+
+  /* bg image if provided */
+  .page-bg{position:fixed;inset:0;z-index:1;}
+  .page-bg img{width:100%;height:100%;object-fit:cover;display:block;opacity:.08;filter:saturate(0) contrast(1.2);mix-blend-mode:multiply;}
+  .page-bg .fb{position:absolute;inset:0;z-index:-1;}
+
+  /* ── BACK ── */
+  .back-btn{position:fixed;top:1.8rem;left:1.8rem;z-index:200;background:transparent;border:none;color:rgba(255,255,255,.3);font-family:'DM Sans',sans-serif;font-size:.65rem;font-weight:200;letter-spacing:.4em;text-transform:uppercase;cursor:none;transition:color .3s;display:flex;align-items:center;gap:8px;padding:0;}
+  .back-btn:hover{color:rgba(255,255,255,.8);}
+  .ba{width:16px;height:1px;background:currentColor;position:relative;transition:width .3s;}
+  .ba::before{content:'';position:absolute;left:0;top:-3px;width:4px;height:4px;border-left:1px solid currentColor;border-bottom:1px solid currentColor;transform:rotate(45deg);}
+  .back-btn:hover .ba{width:26px;}
+
+  /* ── SCENE ── */
+  .scene{position:relative;z-index:10;min-height:100vh;padding:5.5rem 1.5rem 7rem;display:flex;flex-direction:column;align-items:center;gap:0;}
+
+  /* ── HEADER ── */
+  .hdr{text-align:center;margin-bottom:4rem;opacity:0;animation:up .8s ease .2s both;width:100%;max-width:760px;}
+  @keyframes up{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  .hdr-rule{width:100%;height:2px;background:rgba(255,255,255,.2);margin-bottom:1rem;}
+  .hdr-eye{font-size:.6rem;font-weight:200;letter-spacing:.55em;color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:.4rem;}
+  .hdr-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,9vw,6.5rem);color:#fff;letter-spacing:.06em;line-height:.9;opacity:.92;}
+  .hdr-sub{font-size:.6rem;font-weight:200;letter-spacing:.45em;color:rgba(255,255,255,.3);margin-top:.6rem;text-transform:uppercase;}
+  .hdr-rule-bot{width:100%;height:1px;background:rgba(255,255,255,.1);margin-top:1rem;}
+
+  /* ── TV CARDS ── */
+  .tv-grid{width:100%;max-width:760px;display:flex;flex-direction:column;gap:3rem;}
+
+  .tv-card{
+    opacity:0;
+    animation:up .8s cubic-bezier(.22,1,.36,1) both;
+    cursor:none;
+  }
+  .tv-card:nth-child(1){animation-delay:.4s;}
+  .tv-card:nth-child(2){animation-delay:.55s;}
+  .tv-card:nth-child(3){animation-delay:.7s;}
+  .tv-card:nth-child(4){animation-delay:.85s;}
+
+  /* tv outer shell */
+  .tv{
+    background:rgba(0,0,0,.18);
+    border:2px solid rgba(255,255,255,.12);
+    padding:12px;
+    position:relative;
+    transition:transform .3s ease;
+  }
+  .tv-card:hover .tv{transform:translateY(-3px);}
+
+  /* tv screen */
+  .tv-screen{
+    position:relative;
+    width:100%;
+    aspect-ratio:16/9;
+    overflow:hidden;
+    background:#000;
+  }
+
+  .tv-screen img{
+    width:100%;height:100%;
+    object-fit:cover;display:block;
+    filter:contrast(1.1) brightness(.85) saturate(.9);
+    transition:filter .5s ease;
+  }
+  .tv-card:hover .tv-screen img{filter:contrast(1.05) brightness(.95) saturate(1);}
+
+  /* scan lines over screen */
+  .tv-screen::after{
+    content:'';
+    position:absolute;inset:0;
+    background:repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 3px,
+      rgba(0,0,0,.08) 3px,
+      rgba(0,0,0,.08) 4px
+    );
+    pointer-events:none;
+    z-index:2;
+  }
+
+  /* orange tint overlay */
+  .tv-screen-tint{
+    position:absolute;inset:0;z-index:1;
+    background:rgba(220,90,0,.08);
+    mix-blend-mode:color;
+    pointer-events:none;
+  }
+
+  /* screen bottom gradient */
+  .tv-screen-grad{
+    position:absolute;bottom:0;left:0;right:0;
+    height:50%;z-index:3;
+    background:linear-gradient(to top,rgba(0,0,0,.6) 0%,transparent 100%);
+    pointer-events:none;
+  }
+
+  /* on-screen text */
+  .tv-screen-text{
+    position:absolute;bottom:0;left:0;right:0;
+    padding:1.2rem 1.4rem;
+    z-index:4;
+  }
+  .tv-channel{font-size:.55rem;font-weight:200;letter-spacing:.45em;color:rgba(255,200,100,.5);text-transform:uppercase;margin-bottom:4px;}
+  .tv-cap{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(.9rem,2.2vw,1.15rem);color:rgba(255,255,255,.88);font-weight:300;line-height:1.4;margin-bottom:4px;}
+  .tv-lyric{font-size:.6rem;font-weight:200;letter-spacing:.06em;color:rgba(255,255,255,.35);line-height:1.5;font-style:italic;}
+
+  /* placeholder */
+  .ph{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#1a0a00;z-index:1;}
+  .ph span{font-size:.6rem;font-weight:200;letter-spacing:.3em;color:rgba(255,200,100,.2);text-transform:uppercase;}
+  .ph-c{width:22px;height:22px;border-radius:50%;border:1px solid rgba(255,180,60,.15);}
+
+  /* tv bottom bar */
+  .tv-bar{
+    background:rgba(0,0,0,.15);
+    padding:10px 14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-top:1px solid rgba(255,255,255,.06);
+  }
+
+  .tv-song{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.12em;color:rgba(255,255,255,.4);}
+  .tv-hint{font-size:.55rem;font-weight:200;letter-spacing:.3em;color:rgba(255,255,255,.2);text-transform:uppercase;}
+
+  /* corner screw details */
+  .tv::before,.tv::after{
+    content:'';
+    position:absolute;
+    width:6px;height:6px;
+    border-radius:50%;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.06);
+  }
+  .tv::before{top:6px;left:6px;}
+  .tv::after{top:6px;right:6px;}
+
+  /* spotify slides up */
+  .sp-wrap{
+    overflow:hidden;max-height:0;
+    transition:max-height .5s ease;
+    background:rgba(0,0,0,.2);
+  }
+  .tv-card:hover .sp-wrap,.tv-card.t .sp-wrap{max-height:100px;}
+  .sp-wrap iframe{display:block;width:100%;border:none;}
+
+  /* ── CLOSING ── */
+  .closing{
+    margin-top:4rem;max-width:480px;text-align:center;
+    opacity:0;animation:up .9s ease 1.2s both;
+    border-top:1px solid rgba(255,255,255,.1);
+    padding-top:3rem;
+    width:100%;max-width:760px;
+  }
+  .cq{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(1rem,2.5vw,1.2rem);color:rgba(255,255,255,.4);line-height:2;margin-bottom:1.2rem;}
+  .cq em{font-style:normal;color:rgba(255,255,255,.75);}
+  .cd{width:30px;height:1px;background:rgba(255,255,255,.15);margin:0 auto 1rem;}
+  .cs{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.15em;color:rgba(255,255,255,.2);}
+
+  @media(max-width:520px){.tv-screen-text{padding:.9rem 1rem;}}
+</style>
+</head>
+<body>
+
+<div class="pre" id="pre"><div class="pre-t">Channel Orange</div><div class="pre-sub">loading</div></div>
+<div class="bg"></div>
+<div class="page-bg"><img src="bg-frank.jpg" alt="" onerror="this.style.display='none'"><div class="fb"></div></div>
+<div class="cur" id="cur"></div>
+<button class="back-btn" onclick="goBack()" onmouseenter="h(1)" onmouseleave="h(0)"><span class="ba"></span>back</button>
+
+<div class="scene">
+
+  <div class="hdr">
+    <div class="hdr-rule"></div>
+    <div class="hdr-eye">To Czarina</div>
+    <div class="hdr-title">Frank Ocean</div>
+    <div class="hdr-sub">hover to play</div>
+    <div class="hdr-rule-bot"></div>
+  </div>
+
+  <div class="tv-grid">
+
+    <div class="tv-card" onmouseenter="loadSp(this);h(1)" onmouseleave="h(0)">
+      <div class="tv">
+        <div class="tv-screen">
+          <img src="images/photo2.jpeg" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="ph"><div class="ph-c"></div><span>photo1.jpg</span></div>
+          <div class="tv-screen-tint"></div>
+          <div class="tv-screen-grad"></div>
+          <div class="tv-screen-text">
+            <div class="tv-channel">ch. 01</div>
+            <div class="tv-cap">Channel Orange</div>
+            <div class="tv-lyric">Close my eyes and fall into you, you, you
+              My God, she's giving me pleasure
+              </div>
+          </div>
+        </div>
+        <div class="tv-bar">
+          <div class="tv-song">♩ Pink Matter</div>
+          <div class="tv-hint">hover to play</div>
+        </div>
+        <div class="sp-wrap">
+          <iframe style="border-radius:0" data-src="https://open.spotify.com/embed/track/1fOkmYW3ZFkkjIdOZSf596" width="100%" height="80" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <div class="tv-card" onmouseenter="loadSp(this);h(1)" onmouseleave="h(0)">
+      <div class="tv">
+        <div class="tv-screen">
+          <img src="photo2.jpg" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="ph"><div class="ph-c"></div><span>photo2.jpg</span></div>
+          <div class="tv-screen-tint"></div>
+          <div class="tv-screen-grad"></div>
+          <div class="tv-screen-text">
+            <div class="tv-channel">ch. 02</div>
+            <div class="tv-cap">lazy afternoons feel like home with you</div>
+            <div class="tv-lyric">put your lyric here</div>
+          </div>
+        </div>
+        <div class="tv-bar">
+          <div class="tv-song">♩ sweet life</div>
+          <div class="tv-hint">hover to play</div>
+        </div>
+        <div class="sp-wrap">
+          <iframe style="border-radius:0" data-src="https://open.spotify.com/embed/track/PLACEHOLDER_2?utm_source=generator" width="100%" height="80" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <div class="tv-card" onmouseenter="loadSp(this);h(1)" onmouseleave="h(0)">
+      <div class="tv">
+        <div class="tv-screen">
+          <img src="photo3.jpg" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="ph"><div class="ph-c"></div><span>photo3.jpg</span></div>
+          <div class="tv-screen-tint"></div>
+          <div class="tv-screen-grad"></div>
+          <div class="tv-screen-text">
+            <div class="tv-channel">ch. 03</div>
+            <div class="tv-cap">i'd stay here if you let me</div>
+            <div class="tv-lyric">put your lyric here</div>
+          </div>
+        </div>
+        <div class="tv-bar">
+          <div class="tv-song">♩ lost</div>
+          <div class="tv-hint">hover to play</div>
+        </div>
+        <div class="sp-wrap">
+          <iframe style="border-radius:0" data-src="https://open.spotify.com/embed/track/PLACEHOLDER_3?utm_source=generator" width="100%" height="80" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <div class="tv-card" onmouseenter="loadSp(this);h(1)" onmouseleave="h(0)">
+      <div class="tv">
+        <div class="tv-screen">
+          <img src="photo4.jpg" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="ph"><div class="ph-c"></div><span>photo4.jpg</span></div>
+          <div class="tv-screen-tint"></div>
+          <div class="tv-screen-grad"></div>
+          <div class="tv-screen-text">
+            <div class="tv-channel">ch. 04</div>
+            <div class="tv-cap">every small moment is my favourite</div>
+            <div class="tv-lyric">put your lyric here</div>
+          </div>
+        </div>
+        <div class="tv-bar">
+          <div class="tv-song">♩ forrest gump</div>
+          <div class="tv-hint">hover to play</div>
+        </div>
+        <div class="sp-wrap">
+          <iframe style="border-radius:0" data-src="https://open.spotify.com/embed/track/PLACEHOLDER_4?utm_source=generator" width="100%" height="80" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="closing">
+    <div class="cq">you're the kind of person<br><em>songs are written about.</em><br>lucky me, i get to keep you.</div>
+    <div class="cd"></div>
+    <div class="cs">— Jay</div>
+  </div>
+
+</div>
+
+<script>
+  window.addEventListener('load',()=>{const p=document.getElementById('pre');setTimeout(()=>{p.classList.add('done');setTimeout(()=>p.remove(),800);},700);});
+  const cur=document.getElementById('cur');
+  document.addEventListener('mousemove',e=>{cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px';});
+  function h(on){cur.classList.toggle('h',on);}
+  function loadSp(card){const f=card.querySelector('iframe');if(f&&!f.src&&f.dataset.src)f.src=f.dataset.src;}
+  document.querySelectorAll('.tv-card').forEach(c=>{
+    c.addEventListener('touchstart',()=>{
+      loadSp(c);
+      document.querySelectorAll('.tv-card').forEach(x=>{if(x!==c)x.classList.remove('t');});
+      c.classList.toggle('t');
+    },{passive:true});
+  });
+  function goBack(){document.body.style.cssText='opacity:0;transition:opacity .5s ease';setTimeout(()=>{window.location.href='index.html';},500);}
+</script>
+</body>
+</html>

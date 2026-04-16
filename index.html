@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>for Czarina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;1,9..40,200&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  width:100%; min-height:100vh;
+  background:#14120e;
+  overflow-x:hidden;
+  font-family:'DM Sans', sans-serif;
+  color:#e8e0d0;
+}
+
+/* ── BACKGROUND IMAGE ── */
+.bg-img { position:fixed;inset:0;z-index:0; }
+.bg-img img {
+  width:100%;height:100%;
+  object-fit:cover;object-position:center;
+  display:block;
+  opacity:.32;
+  filter:grayscale(30%) contrast(1.05) brightness(.8);
+}
+.bg-img .bg-fallback {
+  position:absolute;inset:0;
+  background:
+    repeating-linear-gradient(180deg,transparent 0px,transparent 3px,rgba(0,0,0,.07) 3px,rgba(0,0,0,.07) 4px),
+    linear-gradient(160deg,#211f1a 0%,#18160f 40%,#1e1b14 100%);
+}
+
+/* vignette — stronger at edges */
+.vignette {
+  position:fixed;inset:0;z-index:1;
+  background:
+    radial-gradient(ellipse 75% 65% at 50% 45%, transparent 35%, rgba(0,0,0,.7) 100%);
+  pointer-events:none;
+}
+
+/* grain */
+.grain { position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.45;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");background-size:200px 200px; }
+
+/* warm ceiling light */
+.ceiling-light {
+  position:fixed;
+  top:-80px;left:50%;
+  transform:translateX(-50%);
+  width:900px;height:400px;
+  border-radius:50%;
+  background:radial-gradient(ellipse,rgba(255,220,140,.07) 0%,transparent 65%);
+  pointer-events:none;z-index:3;
+}
+
+/* ── HEADER ── */
+header {
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:1.8rem 2.5rem;
+  display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(to bottom,rgba(14,12,8,.92) 0%,transparent 100%);
+}
+.logo { font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.2rem;color:rgba(232,224,208,.45);letter-spacing:.05em; }
+.header-tag { font-size:10px;font-weight:200;letter-spacing:.4em;color:rgba(232,224,208,.18);text-transform:uppercase; }
+
+/* ── SCENE ── */
+.scene {
+  position:relative;z-index:10;
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:7rem 2rem 6rem;
+}
+
+/* ── HINT — more visible ── */
+.hint {
+  position:fixed;bottom:2.2rem;left:50%;
+  transform:translateX(-50%);
+  font-size:10px;font-weight:200;
+  letter-spacing:.4em;
+  color:rgba(232,224,208,.35);
+  text-transform:uppercase;
+  z-index:100;
+  animation:breathe 3.5s ease-in-out infinite;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+}
+.hint-line { width:1px;height:20px;background:rgba(232,224,208,.15); }
+@keyframes breathe { 0%,100%{opacity:.25;} 50%{opacity:.55;} }
+
+/* ── VINYL WALL — asymmetric freeform ── */
+.vinyl-wall {
+  position:relative;
+  width:100%;
+  max-width:1000px;
+}
+
+/* freeform positioning via flex rows with intentional offsets */
+.row {
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  gap:4.5rem;
+  flex-wrap:wrap;
+}
+.row + .row { margin-top:2.5rem; }
+
+/* ── VINYL MOUNT ── */
+.vinyl-mount {
+  position:relative;
+  display:flex;flex-direction:column;align-items:center;
+  cursor:pointer;
+  opacity:0;
+  animation:mountIn 1s cubic-bezier(.22,1,.36,1) forwards;
+}
+@keyframes mountIn { from{opacity:0;transform:translateY(28px);} to{opacity:1;} }
+
+/* individual personalities — tilt + vertical offset + size */
+/* CAS — slightly larger, coldest tilt */
+.vm-cas  { width:210px; transform:rotate(-2.2deg) translateY(0px);   animation-delay:.1s; }
+/* Daniel Caesar — neutral, tallest */
+.vm-dc   { width:195px; transform:rotate(.6deg)  translateY(-12px);  animation-delay:.25s; }
+/* Mac DeMarco — small, sun-faded, slouchy */
+.vm-mac  { width:178px; transform:rotate(-1deg)   translateY(8px);   animation-delay:.4s; }
+/* The 1975 — sharp tilt, lower */
+.vm-t75  { width:200px; transform:rotate(2.4deg)  translateY(4px);   animation-delay:.55s; }
+/* Frank Ocean — warm glow, lifted */
+.vm-fo   { width:192px; transform:rotate(-1.4deg) translateY(-8px);  animation-delay:.7s; }
+/* Secret — faded, small */
+.vm-sec  { width:165px; transform:rotate(1.2deg)  translateY(12px);  animation-delay:.85s; }
+
+/* hover resets tilt, lifts */
+.vinyl-mount { transition:transform .5s cubic-bezier(.34,1.2,.64,1); }
+.vinyl-mount:hover { transform:rotate(0deg) translateY(-10px) !important; z-index:20; }
+
+/* nail */
+.nail {
+  width:10px;height:10px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#b0a080,#5a4a30 60%,#2a2010);
+  box-shadow:0 1px 3px rgba(0,0,0,.8),0 0 0 1px rgba(0,0,0,.5),inset 0 1px 1px rgba(255,255,255,.15);
+  position:relative;z-index:20;margin-bottom:4px;
+}
+.nail::after { content:'';position:absolute;top:9px;left:50%;transform:translateX(-50%);width:1px;height:14px;background:linear-gradient(to bottom,rgba(100,80,50,.6),transparent); }
+
+/* vinyl obj — fills parent width */
+.vinyl-obj { position:relative;width:100%;padding-bottom:100%; }
+.vinyl-obj > * { position:absolute; }
+
+/* sleeve */
+.sleeve {
+  inset:0;border-radius:3px;z-index:3;overflow:hidden;
+  transition:transform .5s cubic-bezier(.34,1.3,.64,1);
+  box-shadow:0 8px 22px rgba(0,0,0,.75),0 2px 6px rgba(0,0,0,.5),-3px 0 10px rgba(0,0,0,.3);
+}
+.vinyl-mount:hover .sleeve { transform:translateX(-22px) translateY(-6px) rotate(-3deg); }
+.sleeve::after { content:'';position:absolute;inset:0;border-radius:3px;background:linear-gradient(135deg,rgba(255,255,255,.05) 0%,transparent 40%);pointer-events:none;z-index:2; }
+
+.sleeve-cover { inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:1; }
+.sleeve-placeholder { inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;z-index:1; }
+.sleeve-placeholder .ph-icon { width:26px;height:26px;border-radius:50%;border:1px dashed currentColor;opacity:.2;position:relative; }
+.sleeve-placeholder .ph-icon::after { content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:9px;height:9px;border-radius:50%;background:currentColor;opacity:.4; }
+.sleeve-placeholder span { font-size:7px;font-weight:300;letter-spacing:.3em;text-transform:uppercase;opacity:.2; }
+
+.cas-ph  { color:#fff;    background:#030303; }
+.dc-ph   { color:#a0b0ff; background:#060818; }
+.mac-ph  { color:#c8a860; background:#1a1208; }
+.t75-ph  { color:#e8e0d0; background:#0d0d0d; }
+.fo-ph   { color:#ff8c40; background:#1a0800; }
+.sec-ph  { color:#c8a060; background:#0a0806; }
+
+/* disc */
+.disc {
+  width:93%;height:93%;
+  top:3.5%;left:3.5%;
+  border-radius:50%;
+  z-index:2;
+  transition:left .5s cubic-bezier(.34,1.3,.64,1),top .5s cubic-bezier(.34,1.3,.64,1);
+}
+.vinyl-mount:hover .disc { left:18%;top:2%; }
+
+.disc-inner { width:100%;height:100%;border-radius:50%;position:relative;box-shadow:0 4px 16px rgba(0,0,0,.9),0 1px 4px rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,255,255,.03); }
+.disc-grooves { position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 200deg at 40% 35%,transparent 0deg,rgba(255,255,255,.06) 8deg,transparent 16deg,rgba(255,255,255,.03) 28deg,transparent 40deg,transparent 360deg),repeating-radial-gradient(circle at 50% 50%,#111 0px,#111 1.2px,#1d1d1d 1.2px,#1d1d1d 2.4px,#141414 2.4px,#141414 3.6px,#0e0e0e 3.6px,#0e0e0e 4.8px);animation:discSpin 6s linear infinite paused; }
+.vinyl-mount:hover .disc-grooves { animation-play-state:running; }
+@keyframes discSpin { from{transform:rotate(0deg);}to{transform:rotate(360deg);} }
+.disc-edge { position:absolute;inset:0;border-radius:50%;border:1px solid rgba(255,255,255,.04);pointer-events:none; }
+.disc-label { position:absolute;width:32%;height:32%;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;z-index:5;box-shadow:0 0 0 1px rgba(0,0,0,.4); }
+.label-text { font-size:6px;font-weight:300;letter-spacing:.1em;text-transform:uppercase;text-align:center;line-height:1.5; }
+.disc-hole { position:absolute;width:4.5%;height:4.5%;border-radius:50%;background:radial-gradient(circle,#0a0a0a,#1a1a1a);top:50%;left:50%;transform:translate(-50%,-50%);z-index:6;box-shadow:inset 0 1px 2px rgba(0,0,0,.9); }
+
+/* unique disc per artist */
+.cas-disc { background:#0a0a0a; }
+.cas-label { background:#0d0d0d;border:1px solid #1f1f1f; }
+
+.dc-disc { background:radial-gradient(circle at 50% 50%,#0a0c1e 0%,#070810 100%); }
+.dc-label { background:#0c0e22;border:1px solid #1e2240; }
+
+.mac-disc { background:radial-gradient(circle at 50% 50%,#1a1005 0%,#0e0803 100%); }
+.mac-label { background:#1e1408;border:1px solid #3a2810; }
+
+.t75-disc { background:radial-gradient(circle at 50% 50%,#2a2820 0%,#1a1810 100%); }
+.t75-label { background:#252218;border:1px solid #3a3828; }
+
+.fo-disc { background:radial-gradient(circle at 50% 50%,#1e0a00 0%,#120600 100%); }
+.fo-label { background:#1e0e04;border:1px solid #4a2010; }
+
+.sec-disc { background:#0a0805; }
+.sec-label { background:#120e08;border:1px solid #3a2810; }
+
+/* ── AMBIENT GLOWS per vinyl ── */
+/* CAS — cold blue-white */
+.vm-cas .vinyl-obj::before { content:'';position:absolute;inset:-30px;border-radius:50%;background:radial-gradient(circle,rgba(200,220,255,.04) 0%,transparent 70%);pointer-events:none;z-index:0;opacity:0;transition:opacity .5s ease; }
+.vm-cas:hover .vinyl-obj::before { opacity:1; }
+
+/* Daniel Caesar — indigo blue */
+.vm-dc .vinyl-obj::before { content:'';position:absolute;inset:-30px;border-radius:50%;background:radial-gradient(circle,rgba(80,100,255,.08) 0%,transparent 70%);pointer-events:none;z-index:0;opacity:0;transition:opacity .5s ease; }
+.vm-dc:hover .vinyl-obj::before { opacity:1; }
+
+/* Mac DeMarco — warm amber */
+.vm-mac .vinyl-obj::before { content:'';position:absolute;inset:-30px;border-radius:50%;background:radial-gradient(circle,rgba(220,160,60,.08) 0%,transparent 70%);pointer-events:none;z-index:0;opacity:0;transition:opacity .5s ease; }
+.vm-mac:hover .vinyl-obj::before { opacity:1; }
+
+/* The 1975 — cool off-white */
+.vm-t75 .vinyl-obj::before { content:'';position:absolute;inset:-30px;border-radius:50%;background:radial-gradient(circle,rgba(220,215,200,.05) 0%,transparent 70%);pointer-events:none;z-index:0;opacity:0;transition:opacity .5s ease; }
+.vm-t75:hover .vinyl-obj::before { opacity:1; }
+
+/* Frank Ocean — orange warmth */
+.vm-fo .vinyl-obj::before { content:'';position:absolute;inset:-30px;border-radius:50%;background:radial-gradient(circle,rgba(255,120,20,.1) 0%,transparent 70%);pointer-events:none;z-index:0;opacity:0;transition:opacity .5s ease; }
+.vm-fo:hover .vinyl-obj::before { opacity:1; }
+
+/* secret — always slightly dimmed */
+.vm-sec .sleeve { opacity:.35; }
+.vm-sec:hover .sleeve { opacity:1; }
+.vm-sec .disc { opacity:.4; }
+
+/* vinyl shadow on wall */
+.vinyl-shadow { bottom:-14px;left:50%;transform:translateX(-50%);width:85%;height:18px;border-radius:50%;background:rgba(0,0,0,.55);filter:blur(8px);z-index:1;transition:transform .5s ease,opacity .5s ease; }
+.vinyl-mount:hover .vinyl-shadow { transform:translateX(-20%) scaleX(.65);opacity:.3; }
+
+/* info */
+.vinyl-info { margin-top:16px;text-align:center;opacity:0;transform:translateY(4px);transition:opacity .3s ease,transform .3s ease; }
+.vinyl-mount:hover .vinyl-info { opacity:1;transform:translateY(0); }
+.v-artist { font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.9rem;color:rgba(232,224,208,.65); }
+.v-album { font-size:8px;font-weight:200;letter-spacing:.3em;color:rgba(232,224,208,.22);text-transform:uppercase;margin-top:3px; }
+
+/* page transition */
+.overlay { position:fixed;inset:0;background:#000;z-index:9000;opacity:0;pointer-events:none;transition:opacity .55s ease; }
+.overlay.on { opacity:1;pointer-events:all; }
+
+/* ripple */
+.ripple { position:fixed;width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.1);pointer-events:none;transform:translate(-50%,-50%) scale(0);animation:rip .7s ease-out forwards;z-index:8999; }
+@keyframes rip { to{transform:translate(-50%,-50%) scale(50);opacity:0;} }
+
+/* cursor */
+body { cursor:none; }
+.cursor      { position:fixed;width:6px;height:6px;border-radius:50%;background:rgba(232,224,208,.5);pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s,background .2s; }
+.cursor-ring { position:fixed;width:28px;height:28px;border-radius:50%;border:1px solid rgba(232,224,208,.2);pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s,border-color .2s; }
+.cursor.hover { width:10px;height:10px;background:rgba(232,224,208,.8); }
+.cursor-ring.hover { width:46px;height:46px;border-color:rgba(232,224,208,.35); }
+
+/* ── PHOTO FRAME ── */
+.frame-row {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin:1.5rem 0;
+  opacity:0;
+  animation:mountIn 1s cubic-bezier(.22,1,.36,1) .5s forwards;
+}
+.photo-frame {
+  position:relative;
+  transform:rotate(-1.2deg) translateX(40px);
+  transition:transform .5s cubic-bezier(.34,1.2,.64,1);
+}
+.photo-frame:hover { transform:rotate(0deg) translateX(40px) translateY(-6px); }
+.frame-nail {
+  width:9px;height:9px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#b0a080,#5a4a30 60%,#2a2010);
+  box-shadow:0 1px 3px rgba(0,0,0,.8),0 0 0 1px rgba(0,0,0,.5),inset 0 1px 1px rgba(255,255,255,.15);
+  margin:0 auto 5px;position:relative;z-index:20;
+}
+.frame-nail::after { content:'';position:absolute;top:8px;left:50%;transform:translateX(-50%);width:1px;height:14px;background:linear-gradient(to bottom,rgba(100,80,50,.5),transparent); }
+.frame-border {
+  background:#f5f0e8;
+  padding:7px 7px 22px;
+  box-shadow:0 8px 28px rgba(0,0,0,.6),0 2px 8px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.5);
+  position:relative;
+}
+.frame-border::after { content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.06) 0%,transparent 45%);pointer-events:none; }
+.frame-img { width:200px;display:block;object-fit:cover;position:relative;z-index:1; }
+.frame-shadow { position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);width:90%;height:16px;border-radius:50%;background:rgba(0,0,0,.5);filter:blur(8px);z-index:0; }
+
+/* mobile */
+@media(max-width:700px) {
+  .row { gap:2.5rem; }
+  .vm-cas,.vm-dc,.vm-mac,.vm-t75,.vm-fo,.vm-sec { width:140px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ BACKGROUND ══ -->
+<div class="bg-img">
+  <img src="images/walls.jpg" alt="" onerror="this.style.display='none'">
+  <div class="bg-fallback"></div>
+</div>
+<div class="vignette"></div>
+<div class="grain"></div>
+<div class="ceiling-light"></div>
+<div class="overlay" id="overlay"></div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<header>
+  <div class="logo">for Czarina</div>
+  <div class="header-tag">a collection</div>
+</header>
+
+<div class="scene">
+  <div class="vinyl-wall">
+
+    <!-- ROW 1 -->
+    <div class="row">
+
+      <!-- CAS -->
+      <div class="vinyl-mount vm-cas" onclick="go('czarina.html',event)" onmouseenter="setHover(true)" onmouseleave="setHover(false)">
+        <div class="nail"></div>
+        <div class="vinyl-obj">
+          <div class="vinyl-shadow"></div>
+          <div class="sleeve">
+            <img src="images/cas-cover.jpg" class="sleeve-cover" alt="CAS" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="sleeve-placeholder cas-ph"><div class="ph-icon"></div><span>cas-cover.jpg</span></div>
+          </div>
+          <div class="disc"><div class="disc-inner cas-disc"><div class="disc-grooves"></div><div class="disc-edge"></div><div class="disc-label cas-label"><div class="label-text" style="color:rgba(255,255,255,.5)">CAS<br>i</div></div><div class="disc-hole"></div></div></div>
+        </div>
+        <div class="vinyl-info"><div class="v-artist">Cigarettes After Sex</div><div class="v-album">Vol. I — Polaroids</div></div>
+      </div>
+
+      <!-- Daniel Caesar -->
+      <div class="vinyl-mount vm-dc" onclick="go('czarina-vol2.html',event)" onmouseenter="setHover(true)" onmouseleave="setHover(false)">
+        <div class="nail"></div>
+        <div class="vinyl-obj">
+          <div class="vinyl-shadow"></div>
+          <div class="sleeve">
+            <img src="images/cover-dc.jpg" class="sleeve-cover" alt="DC" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="sleeve-placeholder dc-ph"><div class="ph-icon"></div><span>cover-dc.jpg</span></div>
+          </div>
+          <div class="disc"><div class="disc-inner dc-disc"><div class="disc-grooves"></div><div class="disc-edge"></div><div class="disc-label dc-label"><div class="label-text" style="color:rgba(140,160,255,.6)">DC<br>ii</div></div><div class="disc-hole"></div></div></div>
+        </div>
+        <div class="vinyl-info"><div class="v-artist">Daniel Caesar</div><div class="v-album">Vol. II — Film Strip</div></div>
+      </div>
+
+      <!-- Mac DeMarco -->
+      <div class="vinyl-mount vm-mac" onclick="go('czarina-vol3.html',event)" onmouseenter="setHover(true)" onmouseleave="setHover(false)">
+        <div class="nail"></div>
+        <div class="vinyl-obj">
+          <div class="vinyl-shadow"></div>
+          <div class="sleeve">
+            <img src="images/mac-cover.jpg" class="sleeve-cover" alt="Mac" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="sleeve-placeholder mac-ph"><div class="ph-icon"></div><span>mac-cover.jpg</span></div>
+          </div>
+          <div class="disc"><div class="disc-inner mac-disc"><div class="disc-grooves"></div><div class="disc-edge"></div><div class="disc-label mac-label"><div class="label-text" style="color:rgba(200,160,80,.6)">MAC<br>iii</div></div><div class="disc-hole"></div></div></div>
+        </div>
+        <div class="vinyl-info"><div class="v-artist">Mac DeMarco</div><div class="v-album">Vol. III — Postcards</div></div>
+      </div>
+
+    </div>
+
+    <!-- ══ MATCHBOX PHOTO FRAME ══ -->
+    <div class="frame-row">
+      <div class="photo-frame">
+        <div class="frame-nail"></div>
+        <div class="frame-border">
+          <div class="frame-shadow"></div>
+          <img src="images/Matchbox.png" class="frame-img" alt="our matchboxes">
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 2 -->
+    <div class="row">
+
+      <!-- The 1975 -->
+      <div class="vinyl-mount vm-t75" onclick="go('czarina-vol4.html',event)" onmouseenter="setHover(true)" onmouseleave="setHover(false)">
+        <div class="nail"></div>
+        <div class="vinyl-obj">
+          <div class="vinyl-shadow"></div>
+          <div class="sleeve">
+            <img src="images/cover-1975.jpg" class="sleeve-cover" alt="1975" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="sleeve-placeholder t75-ph"><div class="ph-icon"></div><span>cover-1975.jpg</span></div>
+          </div>
+          <div class="disc"><div class="disc-inner t75-disc"><div class="disc-grooves"></div><div class="disc-edge"></div><div class="disc-label t75-label"><div class="label-text" style="color:rgba(232,224,208,.5)">1975<br>iv</div></div><div class="disc-hole"></div></div></div>
+        </div>
+        <div class="vinyl-info"><div class="v-artist">The 1975</div><div class="v-album">Vol. IV — Newsprint</div></div>
+      </div>
+
+      <!-- Frank Ocean -->
+      <div class="vinyl-mount vm-fo" onclick="go('czarina-vol5.html',event)" onmouseenter="setHover(true)" onmouseleave="setHover(false)">
+        <div class="nail"></div>
+        <div class="vinyl-obj">
+          <div class="vinyl-shadow"></div>
+          <div class="sleeve">
+            <img src="images/f.o-cover.jpg" class="sleeve-cover" alt="Frank Ocean" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="sleeve-placeholder fo-ph"><div class="ph-icon"></div><span>f.o-cover.jpg</span></div>
+          </div>
+          <div class="disc"><div class="disc-inner fo-disc"><div class="disc-grooves"></div><div class="disc-edge"></div><div class="disc-label fo-label"><div class="label-text" style="color:rgba(255,140,60,.55)">FO<br>v</div></div><div class="disc-hole"></div></div></div>
+        </div>
+        <div class="vinyl-info"><div class="v-artist">Frank Ocean</div><div class="v-album">Vol. V — Channel Orange</div></div>
+      </div>
+
+      <!-- Secret -->
+      <div class="vinyl-mount vm-sec" onmouseenter="setHover(true)" onmouseleave="setHover(false)">
+        <div class="nail" style="opacity:.3"></div>
+        <div class="vinyl-obj">
+          <div class="vinyl-shadow" style="opacity:.2"></div>
+          <div class="sleeve secret-sleeve">
+            <img src="cover-secret.jpg" class="sleeve-cover" alt="?" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="sleeve-placeholder sec-ph"><div class="ph-icon"></div><span>???</span></div>
+          </div>
+          <div class="disc"><div class="disc-inner sec-disc"><div class="disc-grooves"></div><div class="disc-edge"></div><div class="disc-label sec-label"><div class="label-text" style="color:rgba(200,160,80,.25)">soon</div></div><div class="disc-hole"></div></div></div>
+        </div>
+        <div class="vinyl-info"><div class="v-artist" style="color:rgba(232,224,208,.18)">???</div><div class="v-album">coming soon</div></div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<div class="hint">
+  hover a vinyl — click to enter
+  <div class="hint-line"></div>
+</div>
+
+<script>
+  const cur  = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  document.addEventListener('mousemove', e => {
+    cur.style.left  = e.clientX + 'px';
+    cur.style.top   = e.clientY + 'px';
+    ring.style.left = e.clientX + 'px';
+    ring.style.top  = e.clientY + 'px';
+  });
+  function setHover(on) {
+    cur.classList.toggle('hover', on);
+    ring.classList.toggle('hover', on);
+  }
+  function go(url, e) {
+    const r = document.createElement('div');
+    r.className = 'ripple';
+    r.style.left = e.clientX + 'px';
+    r.style.top  = e.clientY + 'px';
+    document.body.appendChild(r);
+    r.addEventListener('animationend', () => r.remove());
+    const ov = document.getElementById('overlay');
+    setTimeout(() => ov.classList.add('on'), 180);
+    setTimeout(() => window.location.href = url, 680);
+  }
+</script>
+</body>
+</html>

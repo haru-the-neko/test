@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#edebe5">
+<title>for Czarina — ABIIOR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;1,9..40,200&family=Bebas+Neue&family=Playfair+Display:ital,wght@1,300&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:#ede8df;
+    min-height:100vh;
+    font-family:'DM Sans',sans-serif;
+    color:#1a1508;
+    overflow-x:hidden;
+    cursor:none;
+    animation:pgIn .6s ease;
+  }
+  @keyframes pgIn{from{opacity:0;}to{opacity:1;}}
+
+  /* ── CSS NEWSPRINT BACKGROUND ── */
+
+  /* base aged paper */
+  .newsprint{
+    position:fixed;inset:0;z-index:0;
+    background:#ede8df;
+  }
+
+  /* paper texture — uneven yellowed tone */
+  .newsprint::before{
+    content:'';
+    position:absolute;inset:0;
+    background:
+      radial-gradient(ellipse 120% 80% at 20% 10%, rgba(255,248,200,.35) 0%, transparent 55%),
+      radial-gradient(ellipse 80% 60% at 85% 80%, rgba(180,160,80,.2) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 60% 40%, rgba(210,195,140,.15) 0%, transparent 45%),
+      linear-gradient(160deg, #f0ece5 0%, #e8e2d8 35%, #ece6dc 60%, #e4ddd2 100%);
+  }
+
+  /* vertical column rules — like a real broadsheet */
+  .newsprint::after{
+    content:'';
+    position:absolute;inset:0;
+    background:
+      repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent calc(100% / 6 - 1px),
+        rgba(26,21,8,.06) calc(100% / 6 - 1px),
+        rgba(26,21,8,.06) calc(100% / 6)
+      );
+    pointer-events:none;
+  }
+
+  /* horizontal text line simulation */
+  .newslines{
+    position:fixed;inset:0;z-index:1;
+    pointer-events:none;
+    background:repeating-linear-gradient(
+      180deg,
+      transparent 0px,
+      transparent 17px,
+      rgba(26,21,8,.04) 17px,
+      rgba(26,21,8,.04) 18px
+    );
+  }
+
+  /* ink bleed / offset print effect */
+  .inkbleed{
+    position:fixed;inset:0;z-index:2;
+    pointer-events:none;
+    background:
+      radial-gradient(ellipse 30% 20% at 15% 25%, rgba(26,21,8,.04) 0%, transparent 100%),
+      radial-gradient(ellipse 20% 15% at 75% 60%, rgba(26,21,8,.03) 0%, transparent 100%),
+      radial-gradient(ellipse 25% 18% at 45% 85%, rgba(26,21,8,.025) 0%, transparent 100%);
+  }
+
+  /* grain / paper fiber */
+  .grain{
+    position:fixed;inset:0;z-index:3;
+    pointer-events:none;opacity:.55;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+    background-size:220px 220px;
+    mix-blend-mode:multiply;
+  }
+
+  /* vignette — edges darker like old paper */
+  .vign{
+    position:fixed;inset:0;z-index:4;
+    pointer-events:none;
+    background:radial-gradient(ellipse 85% 80% at 50% 45%, transparent 50%, rgba(80,60,10,.25) 100%);
+  }
+
+  /* ── PRELOADER ── */
+  .pre{position:fixed;inset:0;z-index:9999;background:#ede8df;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;transition:opacity .8s ease;}
+  .pre.done{opacity:0;pointer-events:none;}
+  .pre-rule{width:120px;height:2px;background:rgba(26,21,8,.25);}
+  .pre-t{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:.2em;color:rgba(26,21,8,.2);animation:pulse 1.4s ease-in-out infinite;}
+  .pre-sub{font-size:.58rem;font-weight:200;letter-spacing:.5em;color:rgba(26,21,8,.15);text-transform:uppercase;}
+  @keyframes pulse{0%,100%{opacity:.15;}50%{opacity:.65;}}
+
+  /* ── CURSOR ── */
+  .cur{position:fixed;width:6px;height:6px;border-radius:50%;background:#1a1508;opacity:.35;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .2s,height .2s;mix-blend-mode:multiply;}
+  .cur.h{width:18px;height:18px;opacity:.1;}
+
+  /* ── BACK ── */
+  .back-btn{position:fixed;top:1.8rem;left:1.8rem;z-index:200;background:transparent;border:none;color:rgba(26,21,8,.25);font-family:'DM Sans',sans-serif;font-size:.65rem;font-weight:200;letter-spacing:.4em;text-transform:uppercase;cursor:none;transition:color .3s;display:flex;align-items:center;gap:8px;padding:0;}
+  .back-btn:hover{color:rgba(26,21,8,.65);}
+  .ba{width:18px;height:1px;background:currentColor;position:relative;transition:width .3s;}
+  .ba::before{content:'';position:absolute;left:0;top:-3px;width:5px;height:5px;border-left:1px solid currentColor;border-bottom:1px solid currentColor;transform:rotate(45deg);}
+  .back-btn:hover .ba{width:28px;}
+
+  /* ── SCENE ── */
+  .scene{position:relative;z-index:10;min-height:100vh;padding:5rem 1.5rem 8rem;display:flex;flex-direction:column;align-items:center;}
+
+  /* ── NEWSPAPER MASTHEAD ── */
+  .masthead{
+    width:100%;max-width:760px;
+    margin-bottom:0;
+    opacity:0;
+    animation:up .8s ease .2s both;
+  }
+  @keyframes up{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+  .mast-top{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    padding-bottom:.5rem;
+    border-bottom:3px double rgba(26,21,8,.3);
+    margin-bottom:.4rem;
+  }
+  .mast-meta{font-size:.55rem;font-weight:300;letter-spacing:.12em;color:rgba(26,21,8,.35);line-height:1.8;text-transform:uppercase;}
+  .mast-name{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(2.5rem,8vw,5rem);
+    color:#1a1508;
+    letter-spacing:.08em;
+    line-height:.9;
+    text-align:center;
+    opacity:.85;
+  }
+  .mast-bot{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:.4rem 0;
+    border-bottom:1px solid rgba(26,21,8,.2);
+    margin-bottom:2.5rem;
+  }
+  .mast-tagline{font-size:.55rem;font-weight:300;letter-spacing:.15em;color:rgba(26,21,8,.3);text-transform:uppercase;}
+  .mast-date{font-size:.55rem;font-weight:200;letter-spacing:.12em;color:rgba(26,21,8,.25);}
+
+  /* ── HEADER ── */
+  .hdr{text-align:center;margin-bottom:2.5rem;width:100%;max-width:760px;opacity:0;animation:up .8s ease .35s both;}
+  .hdr-eye{font-size:.6rem;font-weight:200;letter-spacing:.5em;color:rgba(26,21,8,.3);text-transform:uppercase;margin-bottom:.4rem;}
+  .hdr-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.8rem,8vw,5.5rem);color:#1a1508;letter-spacing:.06em;line-height:.95;opacity:.88;}
+  .hdr-rule{width:100%;height:1px;background:rgba(26,21,8,.15);margin-top:1rem;}
+
+  /* ── CARDS ── */
+  .stack{width:100%;max-width:760px;display:flex;flex-direction:column;gap:0;}
+
+  .card{
+    width:100%;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    border-bottom:1px solid rgba(26,21,8,.12);
+    opacity:0;
+    animation:up .8s cubic-bezier(.22,1,.36,1) both;
+    cursor:none;
+    position:relative;
+    overflow:hidden;
+  }
+  .card:nth-child(even){grid-template-columns:1fr 1fr;direction:rtl;}
+  .card:nth-child(even)>*{direction:ltr;}
+  .card:nth-child(1){animation-delay:.5s;}
+  .card:nth-child(2){animation-delay:.65s;}
+  .card:nth-child(3){animation-delay:.8s;}
+  .card:nth-child(4){animation-delay:.95s;}
+
+  .card-img{position:relative;aspect-ratio:1/1;overflow:hidden;}
+  .card-img img{width:100%;height:100%;object-fit:cover;display:block;filter:sepia(.35) contrast(1.05) brightness(.9) saturate(.7);transition:transform .6s ease,filter .4s ease;}
+  .card:hover .card-img img{transform:scale(1.03);filter:sepia(.2) contrast(1.02) brightness(.98) saturate(.8);}
+  .ph{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#d8d2c5;}
+  .ph span{font-size:.6rem;font-weight:200;letter-spacing:.3em;color:rgba(26,21,8,.25);text-transform:uppercase;}
+  .ph-c{width:24px;height:24px;border-radius:50%;border:1px solid rgba(26,21,8,.15);}
+  .card-img-ov{position:absolute;inset:0;background:rgba(26,21,8,0);transition:background .4s ease;}
+  .card:hover .card-img-ov{background:rgba(26,21,8,.04);}
+
+  /* text side — semi-transparent so newsprint shows through */
+  .card-body{
+    padding:1.5rem;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    background:rgba(237,232,223,.75);
+  }
+
+  .card-num{font-family:'Bebas Neue',sans-serif;font-size:3.5rem;color:rgba(26,21,8,.07);line-height:1;margin-bottom:.4rem;letter-spacing:.02em;}
+  .card-cap{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(.88rem,2vw,1.05rem);color:rgba(26,21,8,.72);font-weight:300;line-height:1.5;margin-bottom:.5rem;}
+  .card-lyric{font-size:.62rem;font-weight:200;letter-spacing:.06em;color:rgba(26,21,8,.38);line-height:1.65;font-style:italic;border-left:2px solid rgba(26,21,8,.15);padding-left:.6rem;margin-bottom:.75rem;}
+  .card-song{font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:.12em;color:rgba(26,21,8,.28);}
+  .card-hint{font-size:.55rem;font-weight:200;letter-spacing:.3em;color:rgba(26,21,8,.18);text-transform:uppercase;margin-top:3px;}
+
+  /* spotify slides in */
+  .sp-wrap{
+    position:absolute;inset:0;
+    background:rgba(235,230,220,.97);
+    transform:translateX(100%);
+    transition:transform .5s cubic-bezier(.4,0,.2,1);
+    display:flex;flex-direction:column;
+    padding:1rem;gap:.75rem;
+  }
+  .card:hover .sp-wrap,.card.t .sp-wrap{transform:translateX(0);}
+  .sp-top{display:flex;justify-content:space-between;align-items:center;}
+  .sp-label{font-family:'Bebas Neue',sans-serif;font-size:.78rem;letter-spacing:.12em;color:rgba(26,21,8,.3);}
+  .sp-close{font-size:.58rem;font-weight:200;letter-spacing:.3em;color:rgba(26,21,8,.25);text-transform:uppercase;cursor:none;background:none;border:none;padding:0;transition:color .2s;}
+  .sp-close:hover{color:rgba(26,21,8,.6);}
+  .sp-wrap iframe{display:block;width:100%;border:none;flex:1;}
+
+  /* ── CLOSING ── */
+  .closing{
+    margin-top:0;width:100%;max-width:760px;
+    border-top:3px double rgba(26,21,8,.2);
+    padding:2.5rem 0 0;
+    opacity:0;animation:up .9s ease 1.3s both;
+    display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start;
+  }
+  .cq{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(.95rem,2.5vw,1.15rem);color:rgba(26,21,8,.45);line-height:2.1;}
+  .cq em{font-style:normal;color:rgba(26,21,8,.78);}
+  .c-right{display:flex;flex-direction:column;align-items:flex-end;gap:.5rem;}
+  .cd{width:30px;height:1px;background:rgba(26,21,8,.15);}
+  .cs{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.1em;color:rgba(26,21,8,.25);}
+
+  @media(max-width:520px){
+    .card,.card:nth-child(even){grid-template-columns:1fr;direction:ltr;}
+    .card-img{aspect-ratio:16/9;}
+    .closing{grid-template-columns:1fr;}
+    .c-right{align-items:flex-start;}
+    .mast-name{font-size:2.2rem;}
+  }
+</style>
+</head>
+<body>
+
+<div class="pre" id="pre">
+  <div class="pre-rule"></div>
+  <div class="pre-t">A Brief Inquiry</div>
+  <div class="pre-sub">loading</div>
+</div>
+
+<!-- CSS newsprint — no image needed -->
+<div class="newsprint"></div>
+<div class="newslines"></div>
+<div class="inkbleed"></div>
+<div class="grain"></div>
+<div class="vign"></div>
+
+<div class="cur" id="cur"></div>
+<button class="back-btn" onclick="goBack()" onmouseenter="h(1)" onmouseleave="h(0)"><span class="ba"></span>back</button>
+
+<div class="scene">
+
+  <!-- newspaper masthead -->
+  <div class="masthead">
+    <div class="mast-top">
+      <div class="mast-meta">Vol. I &nbsp;·&nbsp; No. 1<br>Est. 2024</div>
+      <div class="mast-name"></div>
+      <div class="mast-meta">Daily Edition<br>Print</div>
+    </div>
+    <div class="mast-bot">
+      <div class="mast-tagline">Notes on us, in a conditional form</div>
+      <div class="mast-date">A Collection · 2024</div>
+    </div>
+  </div>
+
+  <div class="hdr">
+    <div class="hdr-eye">To Czarina</div>
+    <div class="hdr-title">The 1975</div>
+    <div class="hdr-rule"></div>
+  </div>
+
+  <div class="stack">
+
+    <div class="card" onmouseenter="loadSp(this);h(1)" onmouseleave="h(0)">
+      <div class="card-img"><img src="images/photo1.jpeg" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="ph"><div class="ph-c"></div><span>photo1.jpg</span></div><div class="card-img-ov"></div></div>
+      <div class="card-body">
+        <div><div class="card-num">01</div><div class="card-cap">A Brief Inquiry Into Online Relationships</div><div class="card-lyric">Why can't we be friends when we are lovers?
+          'Cause it always ends with us hating each other</div></div>
+        <div><div class="card-song">♩ sincerity is scary</div><div class="card-hint">hover to play</div></div>
+      </div>
+      <div class="sp-wrap"><div class="sp-top"><div class="sp-label">Now Playing</div><button class="sp-close" onclick="this.closest('.card').classList.remove('t');event.stopPropagation()">close ×</button></div><iframe style="border-radius:0" data-src="https://open.spotify.com/embed/track/6HguG9HRb1Ke1bhihfE4m8" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe></div>
+    </div>
+
+    <div class="card" onmouseenter="loadSp(this);h(1)" onmouseleave="h(0)">
+      <div class="card-img"><img src="photo2.jpg" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="ph"><div class="ph-c"></div><span>photo2.jpg</span></div><div class="card-img-ov"></div></div>
+      <div class="card-body">
+        <div><div class="card-num">02</div><div class="card-cap">lazy afternoons feel like home</div><div class="card-lyric">put your lyric here</div></div>
+        <div><div class="card-song">♩ it's not living (if it's not with you)</div><div class="card-hint">hover to play</div></div>
+      </div>
+      <div class="sp-wrap"><div class="sp-top"><div class="sp-label">Now Playing</div><button class="sp-close" onclick="this.closest('.card').classList.remove('t');event.stopPropagation()">close ×</button></div><iframe style="border-radius:0" data-src="https://open.spotify.com/embed/track/PLACEHOLDER_2?utm_source=generator" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe></div>
+    </div>
+
+    <div class="card" onmouseenter="loadSp(this);h(1)" onmouseleave="h(0)">
+      <div class="card-img"><img src="photo3.jpg" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="ph"><div class="ph-c"></div><span>photo3.jpg</span></div><div class="card-img-ov"></div></div>
+      <div class="card-body">
+        <div><div class="card-num">03</div><div class="card-cap">i'd stay here if you let me</div><div class="card-lyric">put your lyric here</div></div>
+        <div><div class="card-song">♩ i always wanna die (sometimes)</div><div class="card-hint">hover to play</div></div>
+      </div>
+      <div class="sp-wrap"><div class="sp-top"><div class="sp-label">Now Playing</div><button class="sp-close" onclick="this.closest('.card').classList.remove('t');event.stopPropagation()">close ×</button></div><iframe style="border-radius:0" data-src="https://open.spotify.com/embed/track/PLACEHOLDER_3?utm_source=generator" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe></div>
+    </div>
+
+    <div class="card" onmouseenter="loadSp(this);h(1)" onmouseleave="h(0)">
+      <div class="card-img"><img src="photo4.jpg" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="ph"><div class="ph-c"></div><span>photo4.jpg</span></div><div class="card-img-ov"></div></div>
+      <div class="card-body">
+        <div><div class="card-num">04</div><div class="card-cap">every small moment is my favourite</div><div class="card-lyric">put your lyric here</div></div>
+        <div><div class="card-song">♩ be my mistake</div><div class="card-hint">hover to play</div></div>
+      </div>
+      <div class="sp-wrap"><div class="sp-top"><div class="sp-label">Now Playing</div><button class="sp-close" onclick="this.closest('.card').classList.remove('t');event.stopPropagation()">close ×</button></div><iframe style="border-radius:0" data-src="https://open.spotify.com/embed/track/PLACEHOLDER_4?utm_source=generator" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe></div>
+    </div>
+
+  </div>
+
+  <div class="closing">
+    <div class="cq">you're the kind of person<br><em>songs are written about.</em><br>lucky me, i get to keep you.</div>
+    <div class="c-right"><div class="cd"></div><div class="cs">— Jay</div></div>
+  </div>
+
+</div>
+
+<script>
+  window.addEventListener('load',()=>{const p=document.getElementById('pre');setTimeout(()=>{p.classList.add('done');setTimeout(()=>p.remove(),800);},700);});
+  const cur=document.getElementById('cur');
+  document.addEventListener('mousemove',e=>{cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px';});
+  function h(on){cur.classList.toggle('h',on);}
+  function loadSp(card){const f=card.querySelector('iframe');if(f&&!f.src&&f.dataset.src)f.src=f.dataset.src;}
+  document.querySelectorAll('.card').forEach(c=>{c.addEventListener('touchstart',()=>{loadSp(c);document.querySelectorAll('.card').forEach(x=>{if(x!==c)x.classList.remove('t');});c.classList.toggle('t');},{passive:true});});
+  function goBack(){document.body.style.cssText='opacity:0;transition:opacity .4s ease';setTimeout(()=>{window.location.href='index.html';},400);}
+</script>
+</body>
+</html>
